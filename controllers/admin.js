@@ -33,8 +33,10 @@ exports.getEditProduct = (req, res, next) => {
 		return res.redirect('/');
 	}
 	const prodId = req.params.productId;
-	Product.findByPk(prodId)
-		.then((product) => {
+	req.user
+		.getProducts({ where: { id: prodId } })
+		.then((products) => {
+			const product = products[0]; // assuming there's only one product per product ID
 			if (!product) {
 				return res.redirect('/');
 			}
@@ -46,6 +48,20 @@ exports.getEditProduct = (req, res, next) => {
 			});
 		})
 		.catch((err) => console.log(err));
+
+	// Product.findByPk(prodId)
+	// 	.then((product) => {
+	// 		if (!product) {
+	// 			return res.redirect('/');
+	// 		}
+	// 		res.render('admin/edit-product', {
+	// 			pageTitle: 'Edit Product',
+	// 			path: '/admin/edit-product',
+	// 			editing: editMode,
+	// 			product: product,
+	// 		});
+	// 	})
+	// 	.catch((err) => console.log(err));
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -71,7 +87,8 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-	Product.findAll()
+	req.user
+		.getProducts()
 		.then((products) => {
 			res.render('admin/products', {
 				prods: products,
@@ -79,7 +96,7 @@ exports.getProducts = (req, res, next) => {
 				path: '/admin/products',
 			});
 		})
-		.catch((err) => console.error(err));
+		.catch((err) => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
